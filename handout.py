@@ -135,9 +135,24 @@ class Graph:
             dicrank[i]=x[self.name[i]][0]
         #print dicrank
         return dicrank
+    def pagerank3(self,d=0.85,iters=100):
+        A=self.cm
+        nlist=self.nodes
+        sumA = np.array(A.sum(0))[0]
+        #invSumA = 1.0/sumA
+
+        invSumA = np.array([1.0 / sumA[i] for i in A.col])
+        A.data = A.data*invSumA*d
+        
+        rank = np.array([1 / len(nlist)]* len(nlist))
+        
+        for i in range(iters):
+            rank = A.dot(rank) + (1-d)*1.0 / len(nlist)
+        
+        ret = dict(zip(nlist,rank / sum(rank)))
+        return ret
 
     def pagerank(self, d=0.85, iters=100):
-
         pm=self.cm
         length=self.node_num
         sumlist=[]
@@ -155,29 +170,36 @@ class Graph:
 
         for i in range(length):#col i
             if sumlist[i]==0:
+                continue
+                '''======================modified here==================================================================0/0=0
                 for j in range(length):
                     t_row= np.append(t_row,j)
                     t_col= np.append(t_col,i)
                     t_data=np.append(t_data,1.0/length)
+                '''
             else:
                 for j in range(length):#row j
                     if tuple((j,i)) in nodelist:
 
                         p=nodelist.index(tuple((j,i)))
                         t_data[p]=float(t_data[p]/sumlist[i])
-
-        pm=sp.coo_matrix((t_data, (t_row, t_col)), dtype=float ,shape=(length,length))
+        #我在最后做了三种方法的对比，对于同一矩阵的结果完全一样
+        #================note 顺序错误源于第三问的转置 ，如果第三问单独是正确的，就说明是对的，如果第三问有问题，那么可能是需要转置============================
+        pm=sp.coo_matrix((d*t_data, (t_row,t_col)), dtype=float ,shape=(length,length))
         #print pm
-        pm=(d)*pm+(1-d)/pm.shape[0]*np.ones(pm.shape)
+        #pm=(d)*pm+(1-d)/pm.shape[0]*np.ones(pm.shape)
         x=1.0/length*np.ones((length,1))
-
         for i in range(iters):
-            x=np.dot(pm,x)
+            x=pm.dot(x)+(1-d)/length
 
         dicrank={}
+        dicrank= dict(zip(self.nodes,x/sum(x)))
+        for i in dicrank.items():
+            dicrank[i[0]]=i[1][0]
 
-        for i in self.nodes:
-            dicrank[i]=(x[self.name[i]].tolist())[0][0]
+
+        #for i in self.nodes:
+         #   dicrank[i]=(x[self.name[i]].tolist())[0][0]
         #print dicrank
         return dicrank
         '''
@@ -219,7 +241,10 @@ G.add_edges(edgelist2)
 
 G.adjacency_matrix()
 G.shortest_path("a")
-print G.pagerank()
+print G.pagerank()#压缩的
+print G.pagerank2()#不压缩的
+print G.pagerank3()#你同学的
+
 
 
 
