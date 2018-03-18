@@ -183,8 +183,7 @@ class Graph:
 
                         p=nodelist.index(tuple((j,i)))
                         t_data[p]=float(t_data[p]/sumlist[i])
-        #我在最后做了三种方法的对比，对于同一矩阵的结果完全一样
-        #================note 顺序错误源于第三问的转置 ，如果第三问单独是正确的，就说明是对的，如果第三问有问题，那么可能是需要转置============================
+       #==============
         pm=sp.coo_matrix((d*t_data, (t_row,t_col)), dtype=float ,shape=(length,length))
         #print pm
         #pm=(d)*pm+(1-d)/pm.shape[0]*np.ones(pm.shape)
@@ -242,8 +241,8 @@ G.add_edges(edgelist2)
 G.adjacency_matrix()
 G.shortest_path("a")
 print G.pagerank()#压缩的
-print G.pagerank2()#不压缩的
-print G.pagerank3()#你同学的
+print G.pagerank2()
+print G.pagerank3()
 
 
 
